@@ -43,7 +43,7 @@ Before the CRUD operations the following conditions must be met:
 
 Data structure used to the form to create new student.
 
-![formToCreateNewStudent](FormToCreateNewStudent.png "formToCreateNewStudent")
+![formToCreateNewStudent](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/FormToCreateNewStudent.png "formToCreateNewStudent")
 
 ### List student
 
