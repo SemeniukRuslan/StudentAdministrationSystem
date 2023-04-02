@@ -49,19 +49,19 @@ Data structure used to the form to create new student.
 
 List all students in database.
 
-![ListStudents](ListStudents.png "ListStudents")
+![ListStudents](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/ListStudents.png "ListStudents")
 
 ### List student after update
 
 List all students in database after update.
 
-![ListStudentsAfterUpdate](ListStudentsAfterUpdate.png "ListStudentsAfterUpdate")
+![ListStudentsAfterUpdate](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/ListStudentsAfterUpdate.png "ListStudentsAfterUpdate")
 
 ### List student after delete one student
 
 List all students in database after delete one student.
 
-![ListStudentsAfterDelete](ListStudentsAfterDelete.png "ListStudentsAfterDelete")
+![ListStudentsAfterDelete](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/ListStudentsAfterDelete.png "ListStudentsAfterDelete")
 
 ### Future Plans
 
