@@ -27,8 +27,6 @@ This will start the application on port 8082. You can access it by visiting http
 This student management system allows users to perform the following operations:
 
 - Add, view, update, and delete students
-- Add, view, update, and delete courses
-- Enroll students in courses and view enrollments
 
 ### Validation
 
@@ -45,19 +43,19 @@ Data structure used to the form to create new student.
 
 ![formToCreateNewStudent](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/FormToCreateNewStudent.png "formToCreateNewStudent")
 
-### List student
+### List students
 
 List all students in database.
 
 ![ListStudents](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/ListStudents.png "ListStudents")
 
-### List student after update
+### List students after update
 
 List all students in database after update.
 
 ![ListStudentsAfterUpdate](https://github.com/SemeniukRuslan/StudentAdministrationSystem/blob/master/src/main/resources/ListStudentsAfterUpdate.png "ListStudentsAfterUpdate")
 
-### List student after delete one student
+### List students after delete one student
 
 List all students in database after delete one student.
 
@@ -66,5 +64,5 @@ List all students in database after delete one student.
 ### Future Plans
 
 * create exception handler
-* create tests to service and controller
-* update project with react component
+* add, view, update, and delete courses
+* enroll students in courses and view enrollments
