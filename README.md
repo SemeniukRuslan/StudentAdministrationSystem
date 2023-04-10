@@ -12,24 +12,22 @@ It allows users to perform CRUD operations on students.
 To get started with this project, you will need to have the following installed:
 - Java Development Kit (JDK) version 8 or later
 - Maven
-
 Once you have Java and Maven installed, you can clone the repository and run the project using the following commands:
 - git clone https://github.com/SemeniukRuslan/StudentAdministrationSystem.git
 - cd StudentAdministrationSystem
 - mvn spring-boot:run
-
 This will start the application on port 8082. You can access it by visiting http://localhost:8082 in your web browser.
 
 ### Features
 This student management system allows users to perform the following operations:
-* Add, view, update, and delete students
+* Add, view, update, and delete students.
 
 ### Validation
 Before the CRUD operations the following conditions must be met:
 * all fields should be present;
 * first_name should be a positive length;
 * last_name should be a positive length;
-* email should be not empty and have a valid format;
+* email should be not empty and have a valid format.
 
 ### Create new student
 Data structure used to the form to create new student.
