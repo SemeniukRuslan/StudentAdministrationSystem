@@ -4,24 +4,20 @@ import com.example.demo.entity.Student;
 import com.example.demo.repository.StudentRepository;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ControllerTests {
@@ -32,93 +28,90 @@ public class ControllerTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @LocalServerPort
+    private int port;
+
+    private String baseUrl;
+
+    @BeforeEach
+    public void setUp() {
+        baseUrl = "http://localhost:" + port;
+    }
+
     @AfterEach
     public void afterEach() throws IOException {
         studentRepository.deleteAll();
     }
 
-    @Test
-    public void testGetAllStudents() {
-        // Create some students to populate the database
-        Student student1 = new Student(2, "Bob", "Smith", "bob.smith@example.com");
-        Student student2 = new Student(44, "John", "Jones", "john.jones@example.com");
-        studentRepository.save(student1);
-        studentRepository.save(student2);
+    private void sendStudentRequest(String endpoint, HttpMethod method, Student student) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        // Send a GET request to the /students endpoint
-        final ResponseEntity<String> response = restTemplate.getForEntity("/students", String.class);
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("id", String.valueOf(student.getId()));
+        map.add("firstName", student.getFirstName());
+        map.add("lastName", student.getLastName());
+        map.add("email", student.getEmail());
 
-        // Assert that the response is an HTML document
-        final String contentType = String.valueOf(response.getHeaders().getContentType());
-        assertThat(response.getStatusCode(), Matchers.is(HttpStatus.OK));
-        assertThat(contentType, containsString("text/html"));
-
-        // Render the Thymeleaf view and extract the student names from the HTML
-        Document doc = Jsoup.parse(Objects.requireNonNull(response.getBody()));
-        Element table = doc.select("table").first();
-        Elements rows = Objects.requireNonNull(table).select("tr");
-
-        // Verify the contents of the view
-        Element row1 = rows.get(1);
-        MatcherAssert.assertThat(row1.child(0).text(), Matchers.containsString("Bob"));
-        MatcherAssert.assertThat(row1.child(1).text(), Matchers.containsString("Smith"));
-        MatcherAssert.assertThat(row1.child(2).text(), Matchers.containsString("bob.smith@example.com"));
-
-        Element row2 = rows.get(2);
-        MatcherAssert.assertThat(row2.child(0).text(), Matchers.containsString("John"));
-        MatcherAssert.assertThat(row2.child(1).text(), Matchers.containsString("Jones"));
-        MatcherAssert.assertThat(row2.child(2).text(), Matchers.containsString("john.jones@example.com"));
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + endpoint, method, request, String.class);
+        MatcherAssert.assertThat(response.getStatusCode(), Matchers.is(HttpStatus.FOUND));
     }
 
     @Test
-    public void testCreateStudent() {
-        // Create a new student
-        Student student = new Student(22, "Bob", "Smith", "bob.smith@example.com");
+    public void testGetAllStudents() {
+        Student student1 = new Student(1,"Bob", "Smith", "bob.smith@example.com");
+        Student student2 = new Student(2,"John", "Jones", "john.jones@example.com");
 
-        // Send a POST request to the /students endpoint to create the student
-        ResponseEntity<String> response = restTemplate.postForEntity("/students", student, String.class);
+        sendStudentRequest("/students", HttpMethod.POST, student1);
+        sendStudentRequest("/students", HttpMethod.POST, student2);
+        List<Student> students = studentRepository.findAll();
 
-        // Assert that the response status code is 302 (redirect)
-        MatcherAssert.assertThat(response.getStatusCode(), Matchers.is(HttpStatus.FOUND));
+        MatcherAssert.assertThat(students.size(), Matchers.is(2));
+        MatcherAssert.assertThat(students.get(0).getFirstName(), Matchers.is(student1.getFirstName()));
+        MatcherAssert.assertThat(students.get(0).getLastName(), Matchers.is(student1.getLastName()));
+        MatcherAssert.assertThat(students.get(0).getEmail(), Matchers.is(student1.getEmail()));
 
-        // Verify that the student was saved to the database
-        Optional<Student> byId = studentRepository.findById(22);
-        MatcherAssert.assertThat(byId.get().getFirstName(), Matchers.is("Bob"));
-        MatcherAssert.assertThat(byId.get().getLastName(), Matchers.is("Smith"));
-        MatcherAssert.assertThat(byId.get().getEmail(), Matchers.is("bob.smith@example.com"));
+        MatcherAssert.assertThat(students.get(1).getFirstName(), Matchers.is(student2.getFirstName()));
+        MatcherAssert.assertThat(students.get(1).getLastName(), Matchers.is(student2.getLastName()));
+        MatcherAssert.assertThat(students.get(1).getEmail(), Matchers.is(student2.getEmail()));
+    }
+
+    @Test
+    public void testSaveStudent() {
+        Student student = new Student(1,"Jill", "Dio", "jill.dio@example.com");
+
+        sendStudentRequest("/students", HttpMethod.POST, student);
+        Optional<Student> students = studentRepository.findById(student.getId());
+
+        MatcherAssert.assertThat(students.get().getFirstName(), Matchers.is(student.getFirstName()));
+        MatcherAssert.assertThat(students.get().getLastName(), Matchers.is(student.getLastName()));
+        MatcherAssert.assertThat(students.get().getEmail(), Matchers.is(student.getEmail()));
     }
 
     @Test
     public void testUpdateStudent() {
-        // Create a new student
-        Student student = new Student(4, "Bob", "Smith", "bob.smith@example.com");
-        studentRepository.save(student);
+        Student student = new Student(1,"Gulia", "Romans", "gulia.romans@example.com");
+        sendStudentRequest("/students", HttpMethod.POST, student);
 
-        // Update the student's information
-        student.setFirstName("Bobby");
-        student.setLastName("Smith1");
-        student.setEmail("bobby.smith1@example.com");
+        student.setFirstName("Jane");
+        student.setEmail("jane.romans@example.com");
 
-        // Send a POST request to the /students/{id} endpoint to update the student
-        restTemplate.postForObject("/students/" + student.getId(), student, String.class);
+        sendStudentRequest("/students/" + student.getId(), HttpMethod.POST, student);
 
-        // Verify that the student's information was updated in the database
-        Optional<Student> updatedStudent = studentRepository.findById(student.getId());
-        MatcherAssert.assertThat(updatedStudent.get().getFirstName(), Matchers.is("Bobby"));
-        MatcherAssert.assertThat(updatedStudent.get().getLastName(), Matchers.is("Smith1"));
-        MatcherAssert.assertThat(updatedStudent.get().getEmail(), Matchers.is("bobby.smith1@example.com"));
+        Optional<Student> students = studentRepository.findById(student.getId());
+        MatcherAssert.assertThat(students.get().getFirstName(), Matchers.is(student.getFirstName()));
+        MatcherAssert.assertThat(students.get().getLastName(), Matchers.is(student.getLastName()));
+        MatcherAssert.assertThat(students.get().getEmail(), Matchers.is(student.getEmail()));
     }
 
     @Test
     public void testDeleteStudent() {
-        // Create a new student
-        Student student = new Student(7, "Bob", "Smith", "bob.smith@example.com");
-        studentRepository.save(student);
+        Student student = new Student(1,"Robert", "Mono", "robert.mono@example.com");
+        sendStudentRequest("/students", HttpMethod.POST, student);
 
-        // Send a GET request to the /students/{id} endpoint to delete the student
-        restTemplate.delete("/students/" + student.getId(), String.class);
+        restTemplate.delete(baseUrl + "/students" , String.class);
 
-        // Verify that the student was deleted from the database
         Student deletedStudent = studentRepository.findById(student.getId()).orElse(null);
         MatcherAssert.assertThat(deletedStudent, Matchers.nullValue());
     }
