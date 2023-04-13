@@ -60,8 +60,8 @@ public class ControllerTests {
 
     @Test
     public void testGetAllStudents() {
-        Student student1 = new Student(1,"Bob", "Smith", "bob.smith@example.com");
-        Student student2 = new Student(2,"John", "Jones", "john.jones@example.com");
+        Student student1 = new Student(1, "Bob", "Smith", "bob.smith@example.com");
+        Student student2 = new Student(2, "John", "Jones", "john.jones@example.com");
 
         sendStudentRequest("/students", HttpMethod.POST, student1);
         sendStudentRequest("/students", HttpMethod.POST, student2);
@@ -79,19 +79,19 @@ public class ControllerTests {
 
     @Test
     public void testSaveStudent() {
-        Student student = new Student(1,"Jill", "Dio", "jill.dio@example.com");
+        Student student = new Student(6, "Jill", "Dio", "jill.dio@example.com");
 
         sendStudentRequest("/students", HttpMethod.POST, student);
-        Optional<Student> students = studentRepository.findById(student.getId());
+        Optional<Student> studentRepositoryById = studentRepository.findById(student.getId());
 
-        MatcherAssert.assertThat(students.get().getFirstName(), Matchers.is(student.getFirstName()));
-        MatcherAssert.assertThat(students.get().getLastName(), Matchers.is(student.getLastName()));
-        MatcherAssert.assertThat(students.get().getEmail(), Matchers.is(student.getEmail()));
+        MatcherAssert.assertThat(studentRepositoryById.get().getFirstName(), Matchers.is(student.getFirstName()));
+        MatcherAssert.assertThat(studentRepositoryById.get().getLastName(), Matchers.is(student.getLastName()));
+        MatcherAssert.assertThat(studentRepositoryById.get().getEmail(), Matchers.is(student.getEmail()));
     }
 
     @Test
     public void testUpdateStudent() {
-        Student student = new Student(1,"Gulia", "Romans", "gulia.romans@example.com");
+        Student student = new Student(9, "Gulia", "Romans", "gulia.romans@example.com");
         sendStudentRequest("/students", HttpMethod.POST, student);
 
         student.setFirstName("Jane");
@@ -99,18 +99,18 @@ public class ControllerTests {
 
         sendStudentRequest("/students/" + student.getId(), HttpMethod.POST, student);
 
-        Optional<Student> students = studentRepository.findById(student.getId());
-        MatcherAssert.assertThat(students.get().getFirstName(), Matchers.is(student.getFirstName()));
-        MatcherAssert.assertThat(students.get().getLastName(), Matchers.is(student.getLastName()));
-        MatcherAssert.assertThat(students.get().getEmail(), Matchers.is(student.getEmail()));
+        Optional<Student> studentRepositoryById = studentRepository.findById(student.getId());
+        MatcherAssert.assertThat(studentRepositoryById.get().getFirstName(), Matchers.is(student.getFirstName()));
+        MatcherAssert.assertThat(studentRepositoryById.get().getLastName(), Matchers.is(student.getLastName()));
+        MatcherAssert.assertThat(studentRepositoryById.get().getEmail(), Matchers.is(student.getEmail()));
     }
 
     @Test
     public void testDeleteStudent() {
-        Student student = new Student(1,"Robert", "Mono", "robert.mono@example.com");
+        Student student = new Student(33, "Robert", "Mono", "robert.mono@example.com");
         sendStudentRequest("/students", HttpMethod.POST, student);
 
-        restTemplate.delete(baseUrl + "/students" , String.class);
+        restTemplate.getForEntity(baseUrl + "/students/" + student.getId(), String.class);
 
         Student deletedStudent = studentRepository.findById(student.getId()).orElse(null);
         MatcherAssert.assertThat(deletedStudent, Matchers.nullValue());
